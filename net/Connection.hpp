@@ -11,9 +11,10 @@ namespace mws
 		class Connection
 		{
 			netlib::StreamSocket m_socket;
-
-		public:
 			
+		public:
+			netlib::StreamSocket const& socket() const;
+			netlib::StreamSocket & socket();
 		};
 	}
 }

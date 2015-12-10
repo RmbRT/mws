@@ -54,11 +54,23 @@ namespace mws
 			m_path,
 			m_query,
 			m_fragment;
+		bool m_valid;
 		public:
+			HierarchyPart();
 			HierarchyPart(String const& hierarchy);
 			HierarchyPart(HierarchyPart && move);
+			HierarchyPart & operator=(HierarchyPart && move);
 
 			static bool parse(String const& hierarchy, HierarchyPart * out);
+
+			String const& userinfo() const;
+			String const& name() const;
+			String const& port() const;
+			String const& path() const;
+			String const& query() const;
+			String const& fragment() const;
+
+			bool valid() const;
 	};
 }
 
