@@ -2,6 +2,7 @@
 #define __mws_string_hpp_defined
 
 #include <crtdefs.h>
+#include <initializer_list>
 
 namespace mws
 {
@@ -23,6 +24,7 @@ namespace mws
 		String& operator=(String const& copy);
 		String& operator=(String && move);
 		String& operator=(char_t const * str);
+		String& operator=(std::nullptr_t);
 
 		bool operator==(char_t const * rhs) const;
 		bool operator!=(char_t const * rhs) const;
@@ -45,6 +47,8 @@ namespace mws
 		void split_on_l(char_t const* position, size_t delim_size, String &out);
 		void split_on_l(size_t position, size_t delim_size, String &out);
 
+		size_t scanf(char const * format, std::initializer_list<String*> const& out) const;
+
 		bool contains(String const& rhs) const;
 
 		size_t indexof(char_t const * character) const;
@@ -64,6 +68,7 @@ namespace mws
 		bool empty() const;
 
 		void reserve(size_t capacity);
+		void clear();
 	private:
 		void invalidate();
 		void copy_content(size_t offset, char const * data, size_t size);

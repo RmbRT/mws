@@ -1,6 +1,7 @@
 #include "String.hpp"
 #include <memory>
 #include <cassert>
+#include <cctype>
 
 namespace mws
 {
@@ -8,8 +9,8 @@ namespace mws
 	{
 		free();
 	}
-	String::String() : m_data(NULL), m_capacity(0), m_size(0) { }
-	String::String(String const& copy) : m_data(NULL), m_size(copy.m_size), m_capacity(m_size)
+	String::String() : m_data(nullptr), m_capacity(0), m_size(0) { }
+	String::String(String const& copy) : m_data(nullptr), m_size(0), m_capacity(0)
 	{
 		*this = copy;
 	}
@@ -17,7 +18,7 @@ namespace mws
 	{
 		move.invalidate();
 	}
-	String::String(char_t const * str) : m_data(NULL), m_size(0), m_capacity(0)
+	String::String(char_t const * str) : m_data(nullptr), m_size(0), m_capacity(0)
 	{
 		*this = str;
 	}
@@ -50,11 +51,15 @@ namespace mws
 
 	String& String::operator=(char_t const * str)
 	{
-		if(!str)
-			str="";
-		
 		m_size = str ? std::strlen(str) : 0;
 		copy_content(0, str, m_size);
+		return *this;
+	}
+
+	String& String::operator=(nullptr_t)
+	{
+		m_size = 0;
+		copy_content(0, nullptr, 0);
 		return *this;
 	}
 
@@ -62,6 +67,9 @@ namespace mws
 	{
 		if(rhs == m_data)
 			return true;
+
+		if(!rhs)
+			return !m_size;
 
 		for(size_t i = 0; i<m_size; i++)
 			if(rhs[i] != m_data[i])
@@ -75,6 +83,9 @@ namespace mws
 		if(rhs == m_data)
 			return false;
 
+		if(!rhs)
+			return m_size;
+
 		for(size_t i = 0; i<m_size; i++)
 			if(rhs[i] != m_data[i])
 				return true;
@@ -86,6 +97,8 @@ namespace mws
 	{
 		if(&rhs == this)
 			return true;
+		if(rhs.length() != length())
+			return false;
 
 		for(size_t i = 0; i<m_size; i++)
 			if(rhs.m_data[i] != m_data[i])
@@ -141,7 +154,7 @@ namespace mws
 			return m_data;
 
 		if(rhs.m_size > m_size)
-			return NULL;
+			return nullptr;
 
 		size_t const sz_diff = m_size - rhs.m_size;
 
@@ -158,7 +171,7 @@ namespace mws
 				return &m_data[i];
 		}
 
-		return NULL;
+		return nullptr;
 	}
 	
 	char_t const * String::find_first(char_t const * rhs, size_t look_start) const
@@ -166,11 +179,11 @@ namespace mws
 		if(rhs == m_data)
 			return m_data;
 		if(!rhs)
-			return NULL;
+			return nullptr;
 
 		size_t const rhs_size = std::strlen(rhs);
 		if(rhs_size > m_size)
-			return NULL;
+			return nullptr;
 
 		size_t const sz_diff = m_size - rhs_size;
 
@@ -187,7 +200,7 @@ namespace mws
 				return &m_data[i];
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	char_t const * String::find_first(char_t rhs, size_t look_start) const
@@ -195,7 +208,7 @@ namespace mws
 		for(size_t i = look_start; i<m_size; i++)
 			if(m_data[i] == rhs)
 				return &m_data[i];
-		return NULL;
+		return nullptr;
 	}
 
 
@@ -205,7 +218,7 @@ namespace mws
 			return m_data;
 
 		if(rhs.m_size > m_size)
-			return NULL;
+			return nullptr;
 		
 		if(look_before > m_size)
 			look_before = m_size;
@@ -223,7 +236,7 @@ namespace mws
 				return &m_data[i];
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	char_t const * String::find_last(char_t const * rhs, size_t look_before) const
@@ -231,12 +244,12 @@ namespace mws
 		if(rhs == m_data)
 			return m_data;
 		if(!rhs)
-			return NULL;
+			return nullptr;
 
 		size_t const rhs_size = std::strlen(rhs);
 
 		if(rhs_size > m_size)
-			return NULL;
+			return nullptr;
 		
 		if(look_before > m_size)
 			look_before = m_size;
@@ -254,7 +267,7 @@ namespace mws
 				return &m_data[i];
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	char_t const * String::find_last(char_t rhs, size_t look_before) const
@@ -266,12 +279,12 @@ namespace mws
 			if(m_data[i] == rhs)
 				return &m_data[i];
 
-		return NULL;
+		return nullptr;
 	}
 
 	char_t const * String::find_first_of(char_t const * characters, size_t look_start) const
 	{
-		char_t const * min = NULL;
+		char_t const * min = nullptr;
 		while(*characters)
 			if(auto const pos = find_first(*characters++, look_start))
 				if(pos < min || !min)
@@ -314,14 +327,89 @@ namespace mws
 			m_data[m_size] = '\0';
 		}
 		else
-			out = NULL;
+			out = nullptr;
 	}
 
-
+	size_t String::scanf(char const * format, std::initializer_list<String *> const& out) const
+	{
+		char const * my = c_str();
+		if(!format)
+			return 0;
+		size_t scanned;
+		for(scanned = 0; *format; )
+		{
+			if(!*my)
+				return scanned;
+			switch(*format)
+			{
+			case '\0':
+				{
+					return scanned;
+				} break;
+			case '%':
+				{
+					bool suppress = false;
+					if(format[1] == '!')
+					{
+						suppress = true;
+						format++;
+					}
+					switch(format[1])
+					{
+					case '%':
+						{
+							if(*my == '%')
+							{
+								++my;
+							} else return scanned;
+						} break;
+					case '_': // \s+
+						{
+							size_t count = 0;
+							while(isspace(unsigned char(my[count])))
+								count++;
+							if(!suppress)
+								if(count && out.size() > scanned && out.begin()[scanned])
+									*out.begin()[scanned++] = substring(indexof(my), indexof(my+count));
+								else
+									return scanned;
+							
+							my += count;
+						} break;
+					case 's': // \S+
+						{
+							size_t count = 0;
+							while(!isspace(unsigned char(my[count])))
+								count++;
+							if(!suppress)
+								if(count && out.size() > scanned && out.begin()[scanned])
+									*out.begin()[scanned++] = substring(indexof(my), indexof(my+count));
+								else
+								return scanned;
+							my += count;
+							
+						} break;
+					default:
+						{
+							printf(__FUNCTION__ ": invalid format : %s", format);
+							return scanned;
+						} break;
+					}
+					format += 2;
+				} break;
+			default:
+				{
+					if(*my++ != *format++)
+						return scanned;
+				} break;
+			}
+		}
+		return scanned;
+	}
 
 	bool String::contains(String const& rhs) const
 	{
-		return find_first(rhs) != NULL;
+		return find_first(rhs) != nullptr;
 	}
 
 	size_t String::indexof(char_t const * character) const
@@ -358,7 +446,13 @@ namespace mws
 	String String::substring(size_t start, size_t end) const
 	{
 		if(!m_data)
-			return NULL;
+			return nullptr;
+
+		if(start > end)
+		{
+			puts(__FILE__ ":" __FUNCTION__ ": start > end, intended?");
+			return nullptr;
+		}
 
 		if(start>m_size)
 			start = m_size;
@@ -402,7 +496,7 @@ namespace mws
 
 	void String::invalidate()
 	{
-		m_data = NULL;
+		m_data = nullptr;
 		m_size = m_capacity = 0;
 	}
 
@@ -412,12 +506,20 @@ namespace mws
 		{
 			m_capacity = capacity;
 			m_data = (char_t *)std::realloc(m_data, m_capacity + 1);
+			if(!m_size) m_data[m_size] = '\0';
 		}
+	}
+
+	void String::clear()
+	{
+		copy_content(0,"",0);
 	}
 
 	void String::copy_content(size_t offset, char const * data, size_t size)
 	{
 		reserve(offset+size);
+		if(!data)
+			data = "";
 
 		if(offset + size > m_size)
 			m_size = offset + size;

@@ -1,8 +1,8 @@
 #ifndef __mws_net_connection_hpp_defined
 #define __mws_net_connection_hpp_defined
 
-#include <netlib/NetLib.hpp>
-#include <string>
+#include <netlib/Socket.hpp>
+#include "..\String.hpp"
 
 namespace mws
 {
@@ -10,11 +10,20 @@ namespace mws
 	{
 		class Connection
 		{
+		protected:
 			netlib::StreamSocket m_socket;
-			
-		public:
 			netlib::StreamSocket const& socket() const;
 			netlib::StreamSocket & socket();
+
+			String receive();
+			void send(String);
+
+		public:
+			Connection(netlib::StreamSocket &&socket);
+			Connection(Connection &&);
+
+			Connection & operator=(Connection&&);
+			Connection & operator=(Connection const&) = delete;
 		};
 	}
 }

@@ -2,8 +2,6 @@
 #define __mws_uri_hpp_defined
 
 #include "String.hpp"
-#include <vector>
-#include <cinttypes>
 
 namespace mws
 {
@@ -11,8 +9,6 @@ namespace mws
 	class HierarchyPart;
 
 	String to_string(URI const& uri);
-	/* Escapes a string, and additionally escapes unreserved characters as well.*/
-	String percent_uri_escape(String const& str, bool escape_reserved, bool escape_unreserved);
 	bool percent_uri_unescape(String const& str, String * out);
 
 	
@@ -24,6 +20,7 @@ namespace mws
 		String
 			m_scheme, /* The scheme part of the URI. */
 			m_scheme_specific; /* The scheme specific part of the URI. */
+		bool m_valid; /* Whether the URI is valid. */
 	public:
 		URI(URI && move);
 		URI &operator=(URI && move);
@@ -43,6 +40,8 @@ namespace mws
 		String const& scheme() const;
 		/* Returns the scheme specific part of the URI. */
 		String const& scheme_specific() const;
+		/* Returns whether the URI is valid. */
+		bool valid() const;
 	};
 
 	class HierarchyPart
