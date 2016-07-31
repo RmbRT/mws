@@ -1,6 +1,10 @@
 #include "URI.hpp"
-#include <type_traits>
+#include <utility>
 #include <cctype>
+
+#ifndef _countof
+#define _countof(x) (sizeof((x))/sizeof(*(x)))
+#endif
 
 namespace mws
 {
@@ -88,12 +92,13 @@ namespace mws
 
 	bool URI::parse(String const& uri, URI * out)
 	{
-		if(auto const pos = uri.find_first(':'))
+		static thread_local String scheme, specific;
+		if(2 == uri.scanf("%+:%+", { &scheme, &specific }))
 		{
 			if(out)
 			{
-				out->m_scheme = uri.substring(0, uri.indexof(pos));
-				out->m_scheme_specific = uri.substring(1+uri.indexof(pos));
+				out->m_scheme = std::move(scheme);
+				out->m_scheme_specific = std::move(specific);
 				out->m_valid = true;
 			}
 			return true;
@@ -155,6 +160,7 @@ namespace mws
 
 		static char_t const order[] = "@:/?#";
 
+		// validate string, check whether the seperators are in right order.
 		for(size_t i = 0; i<_countof(order)-1; i++)
 		{
 			char_t const * pos_more = hierarchy.find_first(order[i], 2),
@@ -167,13 +173,14 @@ namespace mws
 
 		if(hierarchy.indexof(hierarchy.find_first("//")) == 0)
 		{
+			// "//"
 			if(out)
 			{
 				out->m_userinfo = hierarchy.substring(2);
 				out->m_userinfo.split_on_r(out->m_userinfo.find_first('@'),1,out->m_name);
 				out->m_name.split_on_l(out->m_name.find_first_of("/?#"),0,out->m_path);
 				out->m_path.split_on_l(out->m_path.find_first_of("?#"),0,out->m_query);
-				out->m_query.split_on_l(out->m_query.find_first_of("#"),1,out->m_fragment);
+				out->m_query.split_on_l(out->m_query.find_first('#'),1,out->m_fragment);
 
 				if(out->m_name.contains(":"))
 					out->m_name.split_on_l(out->m_name.find_first(':'), 1, out->m_port);

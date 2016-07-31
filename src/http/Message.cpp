@@ -1,20 +1,20 @@
-#include "HTTPMessage.hpp"
+#include "Message.hpp"
 
 namespace mws
 {
-	namespace net
+	namespace http
 	{
-		HTTPMessageHeaderField::HTTPMessageHeaderField(
+		MessageHeaderField::MessageHeaderField(
 			String field_name,
 			String field_value):
 			m_field_name(std::move(field_name)),
 			m_field_value(std::move(field_value)) { }
 
-		HTTPMessageHeaderField::HTTPMessageHeaderField(HTTPMessageHeaderField &&move):
+		MessageHeaderField::MessageHeaderField(MessageHeaderField &&move):
 			m_field_name(std::move(move.m_field_name)),
 			m_field_value(std::move(move.m_field_value)) { }
 
-		HTTPMessageHeaderField &HTTPMessageHeaderField::operator=(HTTPMessageHeaderField &&move)
+		MessageHeaderField &MessageHeaderField::operator=(MessageHeaderField &&move)
 		{
 			if(this == &move)
 				return *this;
@@ -25,22 +25,22 @@ namespace mws
 			return *this;
 		}
 
-		String const& HTTPMessageHeaderField::name() const { return m_field_name; }
-		String const& HTTPMessageHeaderField::value() const { return m_field_value; }
+		String const& MessageHeaderField::name() const { return m_field_name; }
+		String const& MessageHeaderField::value() const { return m_field_value; }
 
 
-		String const * HTTPMessageHeader::find(String const& name) const
+		String const * MessageHeader::find(String const& name) const
 		{
-			for(HTTPMessageHeaderField const& field: m_fields)
+			for(MessageHeaderField const& field: m_fields)
 				if(field.name() == name)
 					return &field.value();
 			return nullptr;
 		}
 
-		HTTPMessageHeader::HTTPMessageHeader(HTTPMessageHeader &&move):
+		MessageHeader::MessageHeader(MessageHeader &&move):
 			m_fields(std::move(move.m_fields)) { }
 
-		HTTPMessageHeader &HTTPMessageHeader::operator=(HTTPMessageHeader &&move)
+		MessageHeader &MessageHeader::operator=(MessageHeader &&move)
 		{
 			if(this == &move)
 				return *this;
@@ -50,20 +50,20 @@ namespace mws
 			return *this;
 		}
 
-		bool HTTPMessageHeader::add(String name, String value)
+		bool MessageHeader::add(String name, String value)
 		{
 			if(find(name))
 				return false;
 			
 			m_fields.push_back(
-				HTTPMessageHeaderField(
+				MessageHeaderField(
 					std::move(name),
 					std::move(value)));
 
 			return true;
 		}
 
-		String const& HTTPMessageHeader::get(String const& name, String const& default_value) const
+		String const& MessageHeader::get(String const& name, String const& default_value) const
 		{
 			if(String const * val = find(name))
 				return *val;
@@ -71,15 +71,15 @@ namespace mws
 				return default_value;
 		}
 
-		String HTTPMessageHeader::to_string() const
+		String MessageHeader::to_string() const
 		{
 			size_t len = 0;
-			for(HTTPMessageHeaderField const& field: m_fields)
+			for(MessageHeaderField const& field: m_fields)
 				len += field.name().length() + field.value().length() + 4; // ': \r\n'
 			String ret;
 			ret.reserve(len);
 			
-			for(HTTPMessageHeaderField const& field: m_fields)
+			for(MessageHeaderField const& field: m_fields)
 			{
 				ret.append(field.name());
 				ret.append(": ");
@@ -89,35 +89,35 @@ namespace mws
 			return std::move(ret);
 		}
 
-		HTTPMessage::HTTPMessage(
+		Message::Message(
 			String start_line,
-			HTTPMessageHeader header,
+			MessageHeader header,
 			String body):
 			m_start_line(std::move(start_line)),
 			m_header(std::move(header)),
 			m_body(std::move(body)) { }
 
-		HTTPMessage::HTTPMessage(HTTPMessage &&move):
+		Message::Message(Message &&move):
 			m_start_line(std::move(move.m_start_line)),
 			m_header(std::move(move.m_header)),
 			m_body(std::move(move.m_body)) { }
 
-		String const& HTTPMessage::start_line() const
+		String const& Message::start_line() const
 		{
 			return m_start_line;
 		}
 
-		HTTPMessageHeader const& HTTPMessage::header() const
+		MessageHeader const& Message::header() const
 		{
 			return m_header;
 		}
 
-		String const& HTTPMessage::body() const
+		String const& Message::body() const
 		{
 			return m_body;
 		}
 
-		String HTTPMessage::to_string() const
+		String Message::to_string() const
 		{
 			String header = m_header.to_string();
 			size_t len =

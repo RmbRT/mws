@@ -1,41 +1,41 @@
-#ifndef __mws_net_httpmessage_hpp_defined
-#define __mws_net_httpmessage_hpp_defined
+#ifndef __mws_http_message_hpp_defined
+#define __mws_http_message_hpp_defined
 
 #include <vector>
 #include "../String.hpp"
 
 namespace mws
 {
-	namespace net
+	namespace http
 	{
-		class HTTPMessageHeaderField
+		class MessageHeaderField
 		{
 			String
 				m_field_name,
 				m_field_value;
 		public:
-			HTTPMessageHeaderField(String field_name, String field_value);
+			MessageHeaderField(String field_name, String field_value);
 
-			HTTPMessageHeaderField(HTTPMessageHeaderField &&);
-			HTTPMessageHeaderField &operator=(HTTPMessageHeaderField &&);
+			MessageHeaderField(MessageHeaderField &&);
+			MessageHeaderField &operator=(MessageHeaderField &&);
 
 			String const& name() const;
 			String const& value() const;
 		};
 
 
-		class HTTPMessageHeader
+		class MessageHeader
 		{
-			std::vector<HTTPMessageHeaderField> m_fields;
+			std::vector<MessageHeaderField> m_fields;
 
 			/* Looks up the field with the given name.
 			@param[in] name: The name of the field that should be looked up.
 			@return: The address of the looked up field, if exists, otherwise null. */
 			String const * find(String const& name) const;
 		public:
-			HTTPMessageHeader() = default;
-			HTTPMessageHeader(HTTPMessageHeader &&);
-			HTTPMessageHeader &operator=(HTTPMessageHeader &&);
+			MessageHeader() = default;
+			MessageHeader(MessageHeader &&);
+			MessageHeader &operator=(MessageHeader &&);
 
 			/* Adds a field with the given name and value, if no field with the given name
 			exists yet.
@@ -58,22 +58,22 @@ namespace mws
 			String to_string() const;
 		};
 
-		class HTTPMessage
+		class Message
 		{
 			String m_start_line;
-			HTTPMessageHeader m_header;
+			MessageHeader m_header;
 			String m_body;
 		public:
-			HTTPMessage(
+			Message(
 				String start_line,
-				HTTPMessageHeader header,
+				MessageHeader header,
 				String body);
 
-			HTTPMessage(HTTPMessage &&);
-			HTTPMessage &operator=(HTTPMessage &&);
+			Message(Message &&);
+			Message &operator=(Message &&);
 
 			String const& start_line() const;
-			HTTPMessageHeader const& header() const;
+			MessageHeader const& header() const;
 			String const& body() const;
 
 			String to_string() const;

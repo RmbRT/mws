@@ -1,0 +1,3 @@
+[submodule "depend/netlib"]
+	path = depend/netlib
+	url = https://github.com/RmbRT/netlib.git

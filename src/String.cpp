@@ -2,6 +2,7 @@
 #include <memory>
 #include <cassert>
 #include <cctype>
+#include <cstring>
 
 namespace mws
 {
@@ -366,7 +367,7 @@ namespace mws
 					case '_': // \s+
 						{
 							size_t count = 0;
-							while(isspace(unsigned char(my[count])))
+							while(my[count] && std::isspace((unsigned char)(my[count])))
 								count++;
 							if(!suppress)
 								if(count && out.size() > scanned && out.begin()[scanned])
@@ -379,19 +380,38 @@ namespace mws
 					case 's': // \S+
 						{
 							size_t count = 0;
-							while(!isspace(unsigned char(my[count])))
+							while(my[count] && !std::isspace((unsigned char)(my[count])))
 								count++;
 							if(!suppress)
 								if(count && out.size() > scanned && out.begin()[scanned])
 									*out.begin()[scanned++] = substring(indexof(my), indexof(my+count));
 								else
-								return scanned;
+									return scanned;
 							my += count;
 							
 						} break;
+					case '+': // .+
+					case '*': // .*
+						{
+							char_t break_on = format[2];
+							size_t count = 0;
+							while(my[count] && (my[count] != break_on))
+								count++;
+							
+							if(!count && format[1] == '+')
+								return scanned;
+
+							if(!suppress)
+								if(count && out.size() > scanned && out.begin()[scanned])
+									*out.begin()[scanned++] = substring(indexof(my), indexof(my+count));
+								else
+									return scanned;
+
+								my += count;
+						} break;
 					default:
 						{
-							printf(__FUNCTION__ ": invalid format : %s", format);
+							printf("scanf: invalid format : %s", format);
 							return scanned;
 						} break;
 					}
@@ -450,7 +470,7 @@ namespace mws
 
 		if(start > end)
 		{
-			puts(__FILE__ ":" __FUNCTION__ ": start > end, intended?");
+			puts("String::scanf: start > end, intended?");
 			return nullptr;
 		}
 
@@ -507,12 +527,19 @@ namespace mws
 			m_capacity = capacity;
 			m_data = (char_t *)std::realloc(m_data, m_capacity + 1);
 			if(!m_size) m_data[m_size] = '\0';
+			m_data[m_capacity] = '\0';
 		}
+	}
+
+	void String::resize(size_t size)
+	{
+		reserve(size);
+		m_size = size;
 	}
 
 	void String::clear()
 	{
-		copy_content(0,"",0);
+		copy_content(0,nullptr,0);
 	}
 
 	void String::copy_content(size_t offset, char const * data, size_t size)

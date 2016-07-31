@@ -1,7 +1,7 @@
 #ifndef __mws_string_hpp_defined
 #define __mws_string_hpp_defined
 
-#include <crtdefs.h>
+#include <cstddef>
 #include <initializer_list>
 
 namespace mws
@@ -41,12 +41,24 @@ namespace mws
 		char_t const * find_last(char_t rhs, size_t look_before = npos) const;
 
 		char_t const * find_first_of(char_t const * characters, size_t look_start = 0) const;
-		
+
 		void split_on_r(char_t const* position, size_t delim_size, String &out);
+		/** Splits the string at the given position.
+			In case `position` is `npos` or greater than the string size, the whole string is moved to `out`. Othwerwise, the string is capped to `position` and `out` contains the rest of the string.
+		@param[in] position:
+			Where to split the string.
+		@param[in] delim_size:
+			How many characters right of `position` to omit when splitting.
+		@param[out] out:
+			The right side of `position`, or the whole string in case `position` is invalid. */
 		void split_on_r(size_t position, size_t delim_size, String &out);
 		void split_on_l(char_t const* position, size_t delim_size, String &out);
+		/** See `split_on_r()`, except that in case of an invalid position, `out` becomes empty, and this remains unchanged. */
 		void split_on_l(size_t position, size_t delim_size, String &out);
 
+		/** Scans a string.
+		@param[in] format:
+			`%s`: non-blank string. `%_`: blank string. `%+`: at least one character, breaks on next format character. `%*`: any number of characters, breaks on next format character. `%!` followed by a code: does not save the matched text, and does not count it towards the number of matched tokens. '%%': escape sequence for `'%'`, does not count towards the number of matched tokens. */
 		size_t scanf(char const * format, std::initializer_list<String*> const& out) const;
 
 		bool contains(String const& rhs) const;
@@ -68,6 +80,7 @@ namespace mws
 		bool empty() const;
 
 		void reserve(size_t capacity);
+		void resize(size_t size);
 		void clear();
 	private:
 		void invalidate();
