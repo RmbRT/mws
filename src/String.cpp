@@ -393,7 +393,7 @@ namespace mws
 					case '+': // .+
 					case '*': // .*
 						{
-							char_t break_on = format[2];
+							char_t const break_on = format[2];
 							size_t count = 0;
 							while(my[count] && (my[count] != break_on))
 								count++;
@@ -428,6 +428,16 @@ namespace mws
 	}
 
 	bool String::contains(String const& rhs) const
+	{
+		return find_first(rhs) != nullptr;
+	}
+
+	bool String::contains(char_t ch) const
+	{
+		return find_first(ch) != nullptr;
+	}
+
+	bool String::contaisn(char_t const * rhs) const
 	{
 		return find_first(rhs) != nullptr;
 	}

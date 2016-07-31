@@ -62,6 +62,8 @@ namespace mws
 		size_t scanf(char const * format, std::initializer_list<String*> const& out) const;
 
 		bool contains(String const& rhs) const;
+		bool contains(char_t const * rhs) const;
+		bool contains(char_t ch) const;
 
 		size_t indexof(char_t const * character) const;
 
