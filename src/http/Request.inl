@@ -24,8 +24,13 @@ namespace mws::http
 		return m_header;
 	}
 
-	String const& Request::body() const
+	String const& Request::body() const&
 	{
 		return m_body;
+	}
+
+	String && Request::body() &&
+	{
+		return std::move(m_body);
 	}
 }

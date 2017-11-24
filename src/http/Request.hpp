@@ -51,7 +51,8 @@ namespace mws::http
 
 		inline RequestFirstLine const& firstline() const;
 		inline MessageHeader const& header() const;
-		inline String const& body() const;
+		inline String const& body() const&;
+		inline String && body() &&;
 	};
 }
 
