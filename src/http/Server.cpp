@@ -2,6 +2,7 @@
 #include "ConnectionHandler.hpp"
 
 #include <vector>
+#include <thread>
 
 namespace mws::http
 {

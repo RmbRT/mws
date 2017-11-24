@@ -1,18 +1,17 @@
 #include "ConnectionHandler.hpp"
 
 #include <cassert>
+#include <thread>
 
 namespace mws::http
 {
 	ConnectionHandler::ConnectionHandler():
-		m_handler(),
 		m_available(true)
-	{}
+	{
+	}
 
 	ConnectionHandler::~ConnectionHandler()
 	{
-		if(m_handler.joinable())
-			m_handler.join();
 	}
 
 	void ConnectionHandler::handle(
@@ -20,12 +19,13 @@ namespace mws::http
 		Connection && connection)
 	{
 		assert(available());
+
 		m_available = false;
-		m_handler = std::thread(
+		std::thread(
 			handle_job,
 			this,
 			server,
-			std::move(connection));
+			std::move(connection)).detach();
 	}
 
 	void ConnectionHandler::handle_job(

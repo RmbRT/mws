@@ -3,13 +3,11 @@
 
 #include "Server.hpp"
 #include "../defines.hpp"
-#include <thread>
 
 namespace mws::http
 {
 	class ConnectionHandler
 	{
-		std::thread m_handler;
 		bool m_available;
 	public:
 		ConnectionHandler();
