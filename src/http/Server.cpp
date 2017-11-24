@@ -31,9 +31,19 @@ namespace mws::http
 				if(!(c = accept()))
 					continue;
 
-				for(auto & handler: handlers)
-					if(handler.available())
-						handler.handle(this, std::move(c));
+				bool dispatched = false;
+				do {
+					for(auto & handler: handlers)
+						if(handler.available())
+						{
+							handler.handle(this, std::move(c));
+							dispatched = true;
+							break;
+						}
+
+					if(!dispatched)
+						std::this_thread::yield();
+				} while(!dispatched);
 			}
 		} else
 		{
