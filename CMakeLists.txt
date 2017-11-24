@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(mws)
 
 # Set the C++ standard used by the miasma web server.
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "-std=c++17 -Wfatal-errors -g")
 
 # Select all source files.
 file(GLOB_RECURSE mws_sources ./src/*.cpp)

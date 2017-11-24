@@ -10,20 +10,42 @@ namespace mws
 	{
 		free();
 	}
-	String::String() : m_data(nullptr), m_capacity(0), m_size(0) { }
-	String::String(String const& copy) : m_data(nullptr), m_size(0), m_capacity(0)
+	String::String():
+		m_data(nullptr),
+		m_capacity(0),
+		m_size(0)
+	{
+	}
+
+	String::String(
+		String const& copy):
+		m_data(nullptr),
+		m_size(0),
+		m_capacity(0)
 	{
 		*this = copy;
 	}
-	String::String(String && move) : m_data(move.m_data), m_capacity(move.m_capacity), m_size(move.m_size)
+
+	String::String(
+		String && move):
+		m_data(move.m_data),
+		m_capacity(move.m_capacity),
+		m_size(move.m_size)
 	{
 		move.invalidate();
 	}
-	String::String(char_t const * str) : m_data(nullptr), m_size(0), m_capacity(0)
+
+	String::String(
+		char_t const * str):
+		m_data(nullptr),
+		m_size(0),
+		m_capacity(0)
 	{
 		*this = str;
 	}
-	String& String::operator=(String const& copy)
+
+	String& String::operator=(
+		String const& copy)
 	{
 		if(this == &copy)
 			return *this;
@@ -34,11 +56,12 @@ namespace mws
 		return *this;
 	}
 
-	String& String::operator=(String && move)
+	String& String::operator=(
+		String && move)
 	{
 		if(this == &move)
 			return *this;
-		
+
 		free();
 
 		m_data = move.m_data;
@@ -50,21 +73,24 @@ namespace mws
 		return *this;
 	}
 
-	String& String::operator=(char_t const * str)
+	String& String::operator=(
+		char_t const * str)
 	{
 		m_size = str ? std::strlen(str) : 0;
 		copy_content(0, str, m_size);
 		return *this;
 	}
 
-	String& String::operator=(nullptr_t)
+	String& String::operator=(
+		nullptr_t)
 	{
 		m_size = 0;
 		copy_content(0, nullptr, 0);
 		return *this;
 	}
 
-	bool String::operator==(char_t const * rhs) const
+	bool String::operator==(
+		char_t const * rhs) const
 	{
 		if(rhs == m_data)
 			return true;
@@ -79,7 +105,8 @@ namespace mws
 		return true;
 	}
 
-	bool String::operator!=(char_t const * rhs) const
+	bool String::operator!=(
+		char_t const * rhs) const
 	{
 		if(rhs == m_data)
 			return false;
@@ -94,7 +121,8 @@ namespace mws
 		return false;
 	}
 
-	bool String::operator==(String const& rhs) const
+	bool String::operator==(
+		String const& rhs) const
 	{
 		if(&rhs == this)
 			return true;
@@ -108,7 +136,8 @@ namespace mws
 		return true;
 	}
 
-	bool String::operator!=(String const& rhs) const
+	bool String::operator!=(
+		String const& rhs) const
 	{
 		if(&rhs == this)
 			return false;
@@ -119,14 +148,15 @@ namespace mws
 
 		return false;
 	}
-	
-	bool String::starts_with(String const& rhs) const
+
+	bool String::starts_with(
+		String const& rhs) const
 	{
 		if(&rhs == this)
 			return true;
 		if(rhs.m_size > m_size)
 			return false;
-		
+
 		for(size_t i = 0; i<rhs.m_size; i++)
 			if(m_data[i] != rhs.m_data[i])
 				return false;
@@ -134,7 +164,8 @@ namespace mws
 		return true;
 	}
 
-	bool String::ends_with(String const& rhs) const
+	bool String::ends_with(
+		String const& rhs) const
 	{
 		if(&rhs == this)
 			return true;
@@ -149,7 +180,9 @@ namespace mws
 		return true;
 	}
 
-	char_t const * String::find_first(String const& rhs, size_t look_start) const
+	char_t const * String::find_first(
+		String const& rhs,
+		size_t look_start) const
 	{
 		if(&rhs == this)
 			return m_data;
@@ -174,8 +207,10 @@ namespace mws
 
 		return nullptr;
 	}
-	
-	char_t const * String::find_first(char_t const * rhs, size_t look_start) const
+
+	char_t const * String::find_first(
+		char_t const * rhs,
+		size_t look_start) const
 	{
 		if(rhs == m_data)
 			return m_data;
@@ -204,7 +239,9 @@ namespace mws
 		return nullptr;
 	}
 
-	char_t const * String::find_first(char_t rhs, size_t look_start) const
+	char_t const * String::find_first(
+		char_t rhs,
+		size_t look_start) const
 	{
 		for(size_t i = look_start; i<m_size; i++)
 			if(m_data[i] == rhs)
@@ -213,14 +250,16 @@ namespace mws
 	}
 
 
-	char_t const * String::find_last(String const& rhs, size_t look_before) const
+	char_t const * String::find_last(
+		String const& rhs,
+		size_t look_before) const
 	{
 		if(&rhs == this)
 			return m_data;
 
 		if(rhs.m_size > m_size)
 			return nullptr;
-		
+
 		if(look_before > m_size)
 			look_before = m_size;
 
@@ -240,7 +279,9 @@ namespace mws
 		return nullptr;
 	}
 
-	char_t const * String::find_last(char_t const * rhs, size_t look_before) const
+	char_t const * String::find_last(
+		char_t const * rhs,
+		size_t look_before) const
 	{
 		if(rhs == m_data)
 			return m_data;
@@ -251,7 +292,7 @@ namespace mws
 
 		if(rhs_size > m_size)
 			return nullptr;
-		
+
 		if(look_before > m_size)
 			look_before = m_size;
 
@@ -271,7 +312,9 @@ namespace mws
 		return nullptr;
 	}
 
-	char_t const * String::find_last(char_t rhs, size_t look_before) const
+	char_t const * String::find_last(
+		char_t rhs,
+		size_t look_before) const
 	{
 		if(look_before > m_size)
 			look_before = m_size;
@@ -283,7 +326,9 @@ namespace mws
 		return nullptr;
 	}
 
-	char_t const * String::find_first_of(char_t const * characters, size_t look_start) const
+	char_t const * String::find_first_of(
+		char_t const * characters,
+		size_t look_start) const
 	{
 		char_t const * min = nullptr;
 		while(*characters)
@@ -293,14 +338,20 @@ namespace mws
 
 		return min;
 	}
-	
-	void String::split_on_r(char_t const * position, size_t delim_size, String &out)
+
+	void String::split_on_r(
+		char_t const * position,
+		size_t delim_size,
+		String &out)
 	{
 		split_on_r(indexof(position), delim_size, out);
 	}
 
-	
-	void String::split_on_r(size_t position, size_t delim_size, String &out)
+
+	void String::split_on_r(
+		size_t position,
+		size_t delim_size,
+		String &out)
 	{
 		if(position < m_size)
 		{
@@ -312,14 +363,20 @@ namespace mws
 			out = std::move(*this);
 	}
 
-	
-	void String::split_on_l(char_t const * position, size_t delim_size, String &out)
+
+	void String::split_on_l(
+		char_t const * position,
+		size_t delim_size,
+		String &out)
 	{
 		split_on_l(indexof(position), delim_size, out);
 	}
 
-	
-	void String::split_on_l(size_t position, size_t delim_size, String &out)
+
+	void String::split_on_l(
+		size_t position,
+		size_t delim_size,
+		String &out)
 	{
 		if(position < m_size)
 		{
@@ -331,7 +388,9 @@ namespace mws
 			out = nullptr;
 	}
 
-	size_t String::scanf(char const * format, std::initializer_list<String *> const& out) const
+	size_t String::scanf(
+		char const * format,
+		std::initializer_list<String *> const& out) const
 	{
 		char const * my = c_str();
 		if(!format)
@@ -374,7 +433,7 @@ namespace mws
 									*out.begin()[scanned++] = substring(indexof(my), indexof(my+count));
 								else
 									return scanned;
-							
+
 							my += count;
 						} break;
 					case 's': // \S+
@@ -388,7 +447,7 @@ namespace mws
 								else
 									return scanned;
 							my += count;
-							
+
 						} break;
 					case '+': // .+
 					case '*': // .*
@@ -397,7 +456,7 @@ namespace mws
 							size_t count = 0;
 							while(my[count] && (my[count] != break_on))
 								count++;
-							
+
 							if(!count && format[1] == '+')
 								return scanned;
 
@@ -427,22 +486,26 @@ namespace mws
 		return scanned;
 	}
 
-	bool String::contains(String const& rhs) const
+	bool String::contains(
+		String const& rhs) const
 	{
 		return find_first(rhs) != nullptr;
 	}
 
-	bool String::contains(char_t ch) const
+	bool String::contains(
+		char_t ch) const
 	{
 		return find_first(ch) != nullptr;
 	}
 
-	bool String::contaisn(char_t const * rhs) const
+	bool String::contains(
+		char_t const * rhs) const
 	{
 		return find_first(rhs) != nullptr;
 	}
 
-	size_t String::indexof(char_t const * character) const
+	size_t String::indexof(
+		char_t const * character) const
 	{
 		if(character >= m_data && character < m_data+m_size)
 			return character-m_data;
@@ -450,30 +513,34 @@ namespace mws
 			return npos;
 	}
 
-	String& String::append(String const& other)
+	String& String::append(
+		String const& other)
 	{
 		copy_content(m_size, other.m_data, other.m_size);
 
 		return *this;
 	}
 
-	String& String::append(char_t const * other)
+	String& String::append(
+		char_t const * other)
 	{
 		copy_content(m_size, other, std::strlen(other));
 
 		return *this;
 	}
 
-	String& String::append(char_t other)
+	String& String::append(
+		char_t other)
 	{
-		m_data[m_size] = other;
-		reserve(++m_size);
-		m_data[m_size] = '\0';
+		resize(m_size+1);
+		m_data[m_size-1] = other;
 
 		return *this;
 	}
 
-	String String::substring(size_t start, size_t end) const
+	String String::substring(
+		size_t start,
+		size_t end) const
 	{
 		if(!m_data)
 			return nullptr;
@@ -488,7 +555,7 @@ namespace mws
 			start = m_size;
 		if(end>m_size)
 			end = m_size;
-		
+
 		String str;
 		str.copy_content(0, &m_data[start], end-start);
 		if(str.m_data)
@@ -502,12 +569,14 @@ namespace mws
 		return m_size ? m_data : "";
 	}
 
-	char_t & String::operator[](size_t index)
+	char_t & String::operator[](
+		size_t index)
 	{
 		assert(index < m_size);
 		return m_data[index];
 	}
-	char_t const& String::operator[](size_t index) const
+	char_t const& String::operator[](
+		size_t index) const
 	{
 		assert(index < m_size);
 		return m_data[index];
@@ -524,13 +593,65 @@ namespace mws
 		return !m_size;
 	}
 
+	static char_t hex_nibble(char_t hex)
+	{
+		if(hex >= '0' && hex <= '9')
+			return hex - '0';
+		else if(hex >= 'a' && hex <= 'f')
+			return hex - ('a' - 0xa);
+		else if(hex >= 'A' && hex <= 'Z')
+			return hex - ('A' - 0xA);
+		else
+			throw new std::range_error("expected a hexadecimal character.");
+	}
+
+	static char_t hex_byte(char_t n1, char_t n2)
+	{
+		return hex_nibble(n1) << 4 | hex_nibble(n2);
+	}
+
+	String String::url_unescape() const
+	{
+		String ret;
+		ret.reserve(m_capacity);
+		for(size_t i = 0; i < m_size; i++)
+		{
+			if(m_data[i] == '%')
+			{
+				if(i+1 == m_size)
+					throw std::runtime_error("expected another symbol after '%'.");
+
+				if(m_data[i+1] == '%')
+				{
+					ret.append('%');
+					++i;
+				} else
+				{
+					if(i+2 == m_size)
+						throw std::runtime_error("expected two symbols or '%' after '%'");
+
+					char_t byte = hex_byte(m_data[i+1], m_data[i+2]);
+					if(!byte)
+						throw std::range_error("encoded 0 bytes are forbidden.");
+
+					ret.append(byte);
+					i+=2;
+				}
+			} else
+				ret.append(m_data[i]);
+		}
+
+		return std::move(ret);
+	}
+
 	void String::invalidate()
 	{
 		m_data = nullptr;
 		m_size = m_capacity = 0;
 	}
 
-	void String::reserve(size_t capacity)
+	void String::reserve(
+		size_t capacity)
 	{
 		if(capacity > m_capacity)
 		{
@@ -541,9 +662,11 @@ namespace mws
 		}
 	}
 
-	void String::resize(size_t size)
+	void String::resize(
+		size_t size)
 	{
 		reserve(size);
+		m_data[size] = '\0';
 		m_size = size;
 	}
 
@@ -552,7 +675,10 @@ namespace mws
 		copy_content(0,nullptr,0);
 	}
 
-	void String::copy_content(size_t offset, char const * data, size_t size)
+	void String::copy_content(
+		size_t offset,
+		char const * data,
+		size_t size)
 	{
 		reserve(offset+size);
 		if(!data)

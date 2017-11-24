@@ -4,10 +4,12 @@
 #include <cstddef>
 #include <initializer_list>
 
+#include <stdexcept>
+
 namespace mws
 {
 	typedef char char_t;
-	
+
 	class String
 	{
 		char_t * m_data;
@@ -80,6 +82,9 @@ namespace mws
 
 		size_t length() const;
 		bool empty() const;
+
+		/** @throws std::range_error */
+		String url_unescape() const;
 
 		void reserve(size_t capacity);
 		void resize(size_t size);
